@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>attribute-matcher</artifactId>
+        <groupId>ua.org.zagoruiko.expenses</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <version>1.0.1-SNAPSHOT</version>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>attribute-matcher-retrofit-client</artifactId>
+    <dependencies>
+        <dependency>
+            <groupId>ua.org.zagoruiko.expenses</groupId>
+            <artifactId>attribute-matcher-model</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+
+        <!-- https://mvnrepository.com/artifact/com.squareup.retrofit/retrofit -->
+        <!-- https://mvnrepository.com/artifact/com.squareup.retrofit2/retrofit -->
+        <dependency>
+            <groupId>com.squareup.retrofit2</groupId>
+            <artifactId>retrofit</artifactId>
+            <version>2.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.retrofit2</groupId>
+            <artifactId>converter-gson</artifactId>
+            <version>2.0.0</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.google.code.gson/gson -->
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.8.5</version>
+        </dependency>
+
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.2.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <relocations>
+                                <relocation>
+                                    <pattern>com.google</pattern>
+                                    <shadedPattern>shaded.com.google</shadedPattern>
+                                    <excludes>
+                                    </excludes>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.fasterxml</pattern>
+                                    <shadedPattern>shaded.com.fasterxml</shadedPattern>
+                                    <excludes>
+                                    </excludes>
+                                </relocation>
+                            </relocations>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

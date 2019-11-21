@@ -1,0 +1,4 @@
+# Project exclude paths
+/attribute-matcher-model/target/
+/attribute-matcher-retrofit-client/target/
+/matcher-service-core/target/
