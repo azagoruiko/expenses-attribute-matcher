@@ -5,11 +5,11 @@ import org.springframework.web.bind.annotation.*;
 import ua.org.zagoruiko.expenses.matcherservice.dto.CategoryMatcherDTO;
 import ua.org.zagoruiko.expenses.matcherservice.dto.MatcherSetDTO;
 import ua.org.zagoruiko.expenses.matcherservice.dto.TagsMatcherDTO;
+import ua.org.zagoruiko.expenses.matcherservice.model.TagsMatcherModel;
 import ua.org.zagoruiko.expenses.matcherservice.service.MatcherService;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 public class MatcherController {
@@ -32,6 +32,38 @@ public class MatcherController {
     @RequestMapping(value = "/matchers/match", method = RequestMethod.GET)
     public Collection<String> match(@RequestParam(name = "text") String text) {
         return this.matcherService.matchTags(text);
+    }
+
+    @RequestMapping(value = "/matchers/available_functions", method = RequestMethod.GET)
+    public Collection<String> availableFunctions() {
+        return Arrays.asList(this.matcherService.getImplementedTagResolverFunctions());
+    }
+
+    @RequestMapping(value = "/matchers", method = RequestMethod.PUT)
+    public TagsMatcherDTO tag(@RequestBody TagsMatcherDTO matcher) {
+        int done = this.matcherService.saveTagMatcher(new TagsMatcherModel(
+                matcher.getProvider(), matcher.getFunc(), matcher.getPattern(), matcher.getTags()
+        ));
+        if (done > 0) {
+            return matcher;
+        }
+        else {
+            throw new RuntimeException("Nothing was saved");
+        }
+    }
+
+    @RequestMapping(value = "/matchers/addmany", method = RequestMethod.PUT)
+    public Collection<TagsMatcherDTO> tag(@RequestBody Collection<TagsMatcherDTO> matchers) {
+        int[] done = this.matcherService.saveTagMatchers(matchers.stream().map(matcher ->
+                new TagsMatcherModel(
+                matcher.getProvider(), matcher.getFunc(), matcher.getPattern(), matcher.getTags()
+        )).collect(Collectors.toList()));
+        if (done.length > 0) {
+            return matchers;
+        }
+        else {
+            throw new RuntimeException("Nothing was saved");
+        }
     }
 
 }

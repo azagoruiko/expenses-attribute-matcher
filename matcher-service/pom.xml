@@ -34,7 +34,7 @@
 		<dependency>
 			<groupId>ua.org.zagoruiko.expenses</groupId>
 			<artifactId>expenses-category-match-lib</artifactId>
-			<version>1.0.3-SNAPSHOT</version>
+			<version>1.0.4-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>

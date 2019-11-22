@@ -16,8 +16,8 @@ import java.util.stream.Collectors;
 
 public class MatcherFatory {
 
-    private static final String CONTAINS = "CONTAINS";
-    private static final String EQUAL = "EQUAL";
+    private static final String CONTAINS = ContainsTagsFromStringResolver.ID;
+    private static final String EQUAL = EqualsTagsFromStringResolver.ID;
     private static final String REGEX = "REGEX";
 
     private static Set<Tag> tagSetFromTagModel(TagsMatcherModel model) {

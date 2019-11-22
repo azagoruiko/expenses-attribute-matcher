@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ua.org.zagoruiko.expenses.category.matcher.Matcher;
+import ua.org.zagoruiko.expenses.category.model.Tag;
 import ua.org.zagoruiko.expenses.matcherservice.matcher.MatcherFatory;
 import ua.org.zagoruiko.expenses.matcherservice.model.TagsMatcherModel;
 
@@ -54,5 +55,56 @@ public class JdbcMatcherService implements MatcherService, Serializable {
     @Override
     public List<String> matchTags(String operationDescription) {
         return this.matcher.match(operationDescription).stream().map(t -> t.getName()).collect(Collectors.toList());
+    }
+
+    @Override
+    public int saveTag(Tag tag) {
+        return this.jdbcTemplate.update("INSERT INTO `values` (`value`, friendly_name) VALUES (?,?)" +
+                "ON DUPLICATE KEY UPDATE `value` = ?, friendly_name = ?",
+                    tag.getName().toUpperCase(),
+                    tag.getDescription(),
+                    tag.getName().toUpperCase(),
+                    tag.getDescription()
+        );
+    }
+
+    @Override
+    public int[] saveTags(Collection<Tag> tags) {
+        return this.jdbcTemplate.batchUpdate("INSERT INTO `values` (`value`, friendly_name) VALUES (?,?)" +
+                "ON DUPLICATE KEY UPDATE `value` = ?, friendly_name = ?",
+                tags.stream().map(t -> new String[] {
+                        t.getName().toUpperCase(),
+                        t.getDescription(),
+                        t.getName().toUpperCase(),
+                        t.getDescription()
+                })
+                .collect(Collectors.toList()));
+    }
+
+    @Override
+    public int saveTagMatcher(TagsMatcherModel matcher) {
+        return this.jdbcTemplate.update("INSERT INTO matchers (provider, func, pattern) VALUES (?,?,?) " +
+                        "ON DUPLICATE KEY UPDATE provider = ?, func = ?, pattern = ?",
+                matcher.getProvider(),
+                matcher.getFunc(),
+                matcher.getPattern(),
+                matcher.getProvider(),
+                matcher.getFunc(),
+                matcher.getPattern());
+    }
+
+    @Override
+    public int[] saveTagMatchers(Collection<TagsMatcherModel> matchers) {
+        return this.jdbcTemplate.batchUpdate("INSERT INTO matchers (provider, func, pattern) VALUES (?,?,?) " +
+                        "ON DUPLICATE KEY UPDATE provider = ?, func = ?, pattern = ?",
+                matchers.stream().map(matcher -> new String[] {
+                        matcher.getProvider(),
+                        matcher.getFunc(),
+                        matcher.getPattern(),
+                        matcher.getProvider(),
+                        matcher.getFunc(),
+                        matcher.getPattern()
+                })
+                        .collect(Collectors.toList()));
     }
 }

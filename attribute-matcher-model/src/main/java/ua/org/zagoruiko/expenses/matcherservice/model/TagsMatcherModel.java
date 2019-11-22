@@ -11,6 +11,6 @@ public class TagsMatcherModel extends MatcherModel {
     }
 
     public Set<String> getTags() {
-        return tags;
+        return this.tags;
     }
 }
