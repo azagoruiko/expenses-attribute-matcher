@@ -2,24 +2,45 @@ package ua.org.zagoruiko.expenses.matcherservice.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import ua.org.zagoruiko.expenses.category.matcher.Matcher;
 import ua.org.zagoruiko.expenses.category.model.Tag;
 import ua.org.zagoruiko.expenses.matcherservice.matcher.MatcherFatory;
+import ua.org.zagoruiko.expenses.matcherservice.model.ReportItemModel;
 import ua.org.zagoruiko.expenses.matcherservice.model.TagsMatcherModel;
+import ua.org.zagoruiko.expenses.matcherservice.model.UnrecognizedTransactionModel;
 
 import java.io.Serializable;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository
 public class JdbcMatcherService implements MatcherService, Serializable {
+    private final static int MATCHER_REFRESH_INTERVAL = 1000 * 60 * 2;
     private Matcher<String> matcher;
+    private long lastUpdatedTs = new Date().getTime();
 
     private JdbcTemplate jdbcTemplate;
 
     private void loadMatchers() {
         this.matcher = MatcherFatory.createMatcher(this.getMatcherSet("pb"), "pb");
+    }
+
+    // TODO refresh in bg instead of sync
+    private synchronized boolean refreshMatchers() {
+        if ((new Date().getTime() - this.lastUpdatedTs) >= MATCHER_REFRESH_INTERVAL) {
+            this.loadMatchers();
+            this.lastUpdatedTs = new Date().getTime();
+            return true;
+        }
+        return false;
     }
 
     @Autowired
@@ -54,6 +75,7 @@ public class JdbcMatcherService implements MatcherService, Serializable {
 
     @Override
     public List<String> matchTags(String operationDescription) {
+        this.refreshMatchers();
         return this.matcher.match(operationDescription).stream().map(t -> t.getName()).collect(Collectors.toList());
     }
 
@@ -69,6 +91,7 @@ public class JdbcMatcherService implements MatcherService, Serializable {
     }
 
     @Override
+    @Transactional
     public int[] saveTags(Collection<Tag> tags) {
         return this.jdbcTemplate.batchUpdate("INSERT INTO `values` (`value`, friendly_name) VALUES (?,?)" +
                 "ON DUPLICATE KEY UPDATE `value` = ?, friendly_name = ?",
@@ -82,29 +105,58 @@ public class JdbcMatcherService implements MatcherService, Serializable {
     }
 
     @Override
-    public int saveTagMatcher(TagsMatcherModel matcher) {
-        return this.jdbcTemplate.update("INSERT INTO matchers (provider, func, pattern) VALUES (?,?,?) " +
-                        "ON DUPLICATE KEY UPDATE provider = ?, func = ?, pattern = ?",
-                matcher.getProvider(),
-                matcher.getFunc(),
-                matcher.getPattern(),
-                matcher.getProvider(),
-                matcher.getFunc(),
-                matcher.getPattern());
+    @Transactional
+    public Integer saveTagMatcher(TagsMatcherModel matcher) {
+
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        this.jdbcTemplate.update(con -> {
+            PreparedStatement ps = con.prepareStatement("INSERT INTO matchers (provider, func, pattern) VALUES (?,?,?) " +
+                    "ON DUPLICATE KEY UPDATE provider = ?, func = ?, pattern = ?", new String[] {"id"});
+            ps.setString(1, matcher.getProvider());
+            ps.setString(2, matcher.getFunc());
+            ps.setString(3, matcher.getPattern());
+            ps.setString(4, matcher.getProvider());
+            ps.setString(5, matcher.getFunc());
+            ps.setString(6, matcher.getPattern());
+            return ps;
+        }, keyHolder);
+        this.jdbcTemplate.update("DELETE FROM return_values WHERE matcher_id = ?", keyHolder.getKey());
+        this.jdbcTemplate.batchUpdate("INSERT INTO return_values (matcher_id, `value`) VALUES (?, ?)",
+                matcher.getTags().stream().map(t -> new Object[] {keyHolder.getKey(), t}).collect(Collectors.toList()));
+
+        return keyHolder.getKey().intValue();
     }
 
     @Override
-    public int[] saveTagMatchers(Collection<TagsMatcherModel> matchers) {
-        return this.jdbcTemplate.batchUpdate("INSERT INTO matchers (provider, func, pattern) VALUES (?,?,?) " +
-                        "ON DUPLICATE KEY UPDATE provider = ?, func = ?, pattern = ?",
-                matchers.stream().map(matcher -> new String[] {
-                        matcher.getProvider(),
-                        matcher.getFunc(),
-                        matcher.getPattern(),
-                        matcher.getProvider(),
-                        matcher.getFunc(),
-                        matcher.getPattern()
-                })
-                        .collect(Collectors.toList()));
+    @Transactional
+    public List<Integer> saveTagMatchers(Collection<TagsMatcherModel> matchers) {
+        return matchers.stream().map(m -> saveTagMatcher(m)).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ReportItemModel> report(Integer year, Integer month, Collection<String> includeTags, Collection<String> excludeTags) {
+        String sql = "select tt.`value`, MONTH(t.transaction_date) mon, ROUND(SUM(t.amount)) amount\n" +
+                "FROM transaction_tags tt\n" +
+                "    JOIN transactions t on tt.transaction_id = t.id\n" +
+                "    -- WHERE tt.value in ('TAXI', 'FOZZY', 'SUPERMARKET', 'HOUSEHOLD')\n" +
+                "GROUP BY tt.`value`, MONTH(t.transaction_date) WITH ROLLUP\n" +
+                "ORDER BY tt.`value`, MONTH(t.transaction_date), COUNT(*) DESC;";
+        return null;
+    }
+
+    @Override
+    public List<UnrecognizedTransactionModel> unrecognizedTransactions(Collection<String> srcTags) {
+        StringBuilder sqlBuilder = new StringBuilder("SELECT t.description, COUNT(*) cnt, ROUND(SUM(t.amount)) amount, GROUP_CONCAT(DISTINCT tt.`value`) " +
+                "from transactions t\n" +
+                "JOIN transaction_tags tt on t.id = tt.transaction_id\n" +
+                "GROUP BY description\n" +
+                "HAVING 1=1 \n"
+                );
+        srcTags.forEach(tag -> sqlBuilder.append("AND GROUP_CONCAT(DISTINCT tt.`value`) = ?\n"));
+        sqlBuilder.append("ORDER BY  COUNT(*) DESC;");
+        return this.jdbcTemplate.query(sqlBuilder.toString(),
+                srcTags.toArray(),
+                (rs, rowNum) -> new UnrecognizedTransactionModel(
+                        rs.getString(1), rs.getInt(2), rs.getInt(3)));
     }
 }

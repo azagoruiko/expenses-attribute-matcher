@@ -54,11 +54,11 @@ public class MatcherController {
 
     @RequestMapping(value = "/matchers/addmany", method = RequestMethod.PUT)
     public Collection<TagsMatcherDTO> tag(@RequestBody Collection<TagsMatcherDTO> matchers) {
-        int[] done = this.matcherService.saveTagMatchers(matchers.stream().map(matcher ->
+        List<Integer> done = this.matcherService.saveTagMatchers(matchers.stream().map(matcher ->
                 new TagsMatcherModel(
                 matcher.getProvider(), matcher.getFunc(), matcher.getPattern(), matcher.getTags()
         )).collect(Collectors.toList()));
-        if (done.length > 0) {
+        if (done.size() > 0) {
             return matchers;
         }
         else {
