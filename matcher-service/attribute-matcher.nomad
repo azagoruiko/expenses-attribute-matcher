@@ -21,7 +21,7 @@ job "attribute-matcher" {
       driver = "docker"
 
       config {
-        image = "127.0.0.1:9999/docker/attribute-matcher:0.0.3"
+        image = "127.0.0.1:9999/docker/attribute-matcher:0.0.7"
         
         port_map {
           web = 8080

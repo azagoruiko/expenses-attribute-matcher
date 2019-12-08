@@ -29,6 +29,19 @@ public class MatcherController {
                 tagsMatcher);
     }
 
+    @RequestMapping(value = "/matchers", method = RequestMethod.GET)
+    public MatcherSetDTO matchers() {
+        Set<CategoryMatcherDTO> categoryMatchers = new HashSet<>();
+        Set<TagsMatcherDTO> tagsMatcher = new HashSet<>();
+
+        this.matcherService.getMatcherSet().forEach((matcher) -> {
+            tagsMatcher.add(TagsMatcherDTO.fromModel(matcher));
+        } );
+
+        return new MatcherSetDTO(categoryMatchers,
+                tagsMatcher);
+    }
+
     @RequestMapping(value = "/matchers/match", method = RequestMethod.GET)
     public Collection<String> match(@RequestParam(name = "text") String text) {
         return this.matcherService.matchTags(text);

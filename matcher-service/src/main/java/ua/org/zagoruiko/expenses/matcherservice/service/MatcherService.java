@@ -14,6 +14,7 @@ import java.util.List;
 
 public interface MatcherService extends Serializable {
     List<TagsMatcherModel> getMatcherSet(String provider);
+    List<TagsMatcherModel> getMatcherSet();
     List<String> getTagSuggestions(String pattern);
     List<String> matchTags(String operationDescription);
     int saveTag(Tag tag);

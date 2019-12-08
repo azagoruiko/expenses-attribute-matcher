@@ -67,6 +67,23 @@ public class JdbcMatcherService implements MatcherService, Serializable {
     }
 
     @Override
+    public List<TagsMatcherModel> getMatcherSet() {
+        return jdbcTemplate.query(
+                "SELECT m.provider, m.func, m.pattern, m.is_category, GROUP_CONCAT(rv.value SEPARATOR ',')as val\n " +
+                        "FROM `return_values` rv\n" +
+                        "                join matchers m on rv.matcher_id = m.id\n" +
+                        "where m.is_category <> 1\n" +
+                        "group by m.provider, m.func, m.pattern, m.is_category", new Object[] { },
+                (rs, rowNum) ->
+                        new TagsMatcherModel(rs.getString("provider"),
+                                rs.getString("func"),
+                                rs.getString("pattern"),
+                                new HashSet<>(Arrays.asList(rs.getString("val").split(",")))
+                        )
+        );
+    }
+
+    @Override
     public List<String> getTagSuggestions(String pattern) {
         return this.jdbcTemplate.query("SELECT `value` FROM `values` WHERE `value` LIKE ? OR friendly_name LIKE ?",
                 new Object[] {"%" + pattern + "%", "%" + pattern + "%"},
