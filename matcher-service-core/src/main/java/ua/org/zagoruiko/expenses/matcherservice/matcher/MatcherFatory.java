@@ -4,6 +4,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import ua.org.zagoruiko.expenses.category.matcher.Matcher;
 import ua.org.zagoruiko.expenses.category.matcher.SimpleAlfaMatcher;
 import ua.org.zagoruiko.expenses.category.matcher.SimplePbMatcher;
+import ua.org.zagoruiko.expenses.category.matcher.SimpleSpreadsheetsMatcher;
 import ua.org.zagoruiko.expenses.category.model.Tag;
 import ua.org.zagoruiko.expenses.category.resolver.ResolverFromString;
 import ua.org.zagoruiko.expenses.category.resolver.tags.ContainsTagsFromStringResolver;
@@ -60,6 +61,12 @@ public class MatcherFatory {
                             .map(m -> tagResolverFromModel(m))
                             .collect(Collectors.toList())));
                     break;
+                case "spreadsheets":
+                    map.put(provider, new SimpleSpreadsheetsMatcher(models.stream()
+                            .filter(m -> provider.equals(m.getProvider()))
+                            .map(m -> tagResolverFromModel(m))
+                            .collect(Collectors.toList())));
+                    break;
             }
         }
         return map;
@@ -77,6 +84,12 @@ public class MatcherFatory {
                     break;
                 case "alfa":
                     map.put(provider, new SimpleAlfaMatcher(models.stream()
+                            .filter(m -> provider.equals(m.getProvider()))
+                            .map(m -> tagResolverFromModel(m))
+                            .collect(Collectors.toList())));
+                    break;
+                case "spreadsheets":
+                    map.put(provider, new SimpleSpreadsheetsMatcher(models.stream()
                             .filter(m -> provider.equals(m.getProvider()))
                             .map(m -> tagResolverFromModel(m))
                             .collect(Collectors.toList())));

@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ua.org.zagoruiko.expenses.category.matcher.Matcher;
 import ua.org.zagoruiko.expenses.category.model.Tag;
 import ua.org.zagoruiko.expenses.matcherservice.matcher.MatcherFatory;
+import ua.org.zagoruiko.expenses.matcherservice.model.CategoryTag;
 import ua.org.zagoruiko.expenses.matcherservice.model.ReportItemModel;
 import ua.org.zagoruiko.expenses.matcherservice.model.TagsMatcherModel;
 import ua.org.zagoruiko.expenses.matcherservice.model.UnrecognizedTransactionModel;
@@ -81,6 +82,38 @@ public class JdbcMatcherService implements MatcherService, Serializable {
                                 new HashSet<>(Arrays.asList(rs.getString("val").split(",")))
                         )
         );
+    }
+
+    @Override
+    public List<CategoryTag> getCategoryTags() {
+        return jdbcTemplate.query(
+                "SELECT tag, exclusive\n " +
+                        "FROM `category_tags`\n", new Object[] { },
+                (rs, rowNum) ->
+                        new CategoryTag(rs.getString("tag"),
+                                rs.getBoolean("exclusive")
+                        )
+        );
+    }
+
+    @Override
+    public CategoryTag setCategoryTag(CategoryTag tag) {
+        int updated = this.jdbcTemplate.update("INSERT INTO `category_tags` (`tag`, exclusive) VALUES (?,?)" +
+                        "ON DUPLICATE KEY UPDATE `tag` = ?, exclusive = ?",
+                tag.getTag().toUpperCase(),
+                tag.isExclusive(),
+                tag.getTag().toUpperCase(),
+                tag.isExclusive()
+        );
+
+        return updated > 0 ? jdbcTemplate.query(
+                "SELECT tag, exclusive\n " +
+                        "FROM `category_tags` where tag = ?", new Object[] { tag.getTag() },
+                (rs, rowNum) ->
+                        new CategoryTag(rs.getString("tag"),
+                                rs.getBoolean("exclusive")
+                        )
+        ).stream().findAny().orElseGet(() -> null) : null;
     }
 
     @Override

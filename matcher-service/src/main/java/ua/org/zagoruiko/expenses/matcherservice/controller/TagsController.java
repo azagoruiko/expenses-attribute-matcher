@@ -3,7 +3,9 @@ package ua.org.zagoruiko.expenses.matcherservice.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ua.org.zagoruiko.expenses.category.model.Tag;
+import ua.org.zagoruiko.expenses.matcherservice.dto.CategoryTagDTO;
 import ua.org.zagoruiko.expenses.matcherservice.dto.TagDTO;
+import ua.org.zagoruiko.expenses.matcherservice.model.CategoryTag;
 import ua.org.zagoruiko.expenses.matcherservice.service.MatcherService;
 
 import java.util.Arrays;
@@ -41,6 +43,23 @@ public class TagsController {
         else {
             throw new RuntimeException("Nothing was saved");
         }
+    }
+
+    @RequestMapping(value = "/tags/categories", method = RequestMethod.PUT)
+    public CategoryTagDTO addCategory(@RequestBody CategoryTagDTO tag) {
+        CategoryTag newTag = this.matcherService.setCategoryTag(new CategoryTag(tag.getTag(), tag.isExclusive()));
+        if (newTag != null) {
+            return new CategoryTagDTO(newTag.getTag(), newTag.isExclusive());
+        }
+        else {
+            throw new RuntimeException("Nothing was saved");
+        }
+    }
+
+    @RequestMapping(value = "/tags/categories", method = RequestMethod.GET)
+    public Collection<CategoryTagDTO> putCategories() {
+        return this.matcherService.getCategoryTags().stream().map(t -> new CategoryTagDTO(t.getTag(), t.isExclusive()))
+                .collect(Collectors.toList());
     }
 
 }
