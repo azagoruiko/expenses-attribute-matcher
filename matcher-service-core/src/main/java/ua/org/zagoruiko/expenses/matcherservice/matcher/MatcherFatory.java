@@ -47,7 +47,7 @@ public class MatcherFatory {
 
     public static Map<String, Matcher<String>> createMatchersMap(Collection<TagsMatcherModel> models) {
         Map<String, Matcher<String>> map = new HashMap<>();
-        for (String provider : new String[] {"pb", "alfa"}) {
+        for (String provider : new String[] {"pb", "alfa", "spreadsheets"}) {
             switch (provider) {
                 case "pb":
                     map.put(provider, new SimplePbMatcher(models.stream()
@@ -74,7 +74,7 @@ public class MatcherFatory {
 
     public static Map<String, Matcher<String>> createMatchersMapFromDTO(Collection<TagsMatcherDTO> models) {
         Map<String, Matcher<String>> map = new HashMap<>();
-        for (String provider : new String[] {"pb", "alfa"}) {
+        for (String provider : new String[] {"pb", "alfa", "spreadsheets"}) {
             switch (provider) {
                 case "pb":
                     map.put(provider, new SimplePbMatcher(models.stream()

@@ -19,7 +19,16 @@ job "attribute-matcher" {
 
     task "attribute-matcher-task" {
       driver = "docker"
-
+      template {
+        data = <<EOH
+MYSQL_URL="{{ key "jdbc.url" }}"
+MYSQL_DRIVER="{{ key "jdbc.driver" }}"
+MYSQL_USER="{{ key "jdbc.user" }}"
+MYSQL_PASSWORD="{{ key "jdbc.password" }}"
+EOH
+        destination = "secrets.env"
+        env = true
+      }
       config {
         image = "127.0.0.1:9999/docker/attribute-matcher:0.0.1"
         
