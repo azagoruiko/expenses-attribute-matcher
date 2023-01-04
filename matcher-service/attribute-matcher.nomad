@@ -30,23 +30,18 @@ EOH
         env = true
       }
       config {
-        image = "127.0.0.1:9999/docker/attribute-matcher:0.0.1"
+        image = "127.0.0.1:9999/docker/attribute-matching:0.0.8"
         
         port_map {
           web = 8080
         }
-
-        volumes = [
-          "/var/nfs/:/var/nfs/",
-        ]
       }
 
       resources {
-        cpu    = 200
+        cpu    = 400
         memory = 1024
 
         network {
-          mbits = 1
           port "web" {}
         }
       }

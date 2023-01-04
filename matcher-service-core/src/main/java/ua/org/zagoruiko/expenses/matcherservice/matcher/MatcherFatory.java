@@ -1,10 +1,7 @@
 package ua.org.zagoruiko.expenses.matcherservice.matcher;
 
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-import ua.org.zagoruiko.expenses.category.matcher.Matcher;
-import ua.org.zagoruiko.expenses.category.matcher.SimpleAlfaMatcher;
-import ua.org.zagoruiko.expenses.category.matcher.SimplePbMatcher;
-import ua.org.zagoruiko.expenses.category.matcher.SimpleSpreadsheetsMatcher;
+import ua.org.zagoruiko.expenses.category.matcher.*;
 import ua.org.zagoruiko.expenses.category.model.Tag;
 import ua.org.zagoruiko.expenses.category.resolver.ResolverFromString;
 import ua.org.zagoruiko.expenses.category.resolver.tags.ContainsTagsFromStringResolver;
@@ -47,7 +44,7 @@ public class MatcherFatory {
 
     public static Map<String, Matcher<String>> createMatchersMap(Collection<TagsMatcherModel> models) {
         Map<String, Matcher<String>> map = new HashMap<>();
-        for (String provider : new String[] {"pb", "alfa", "spreadsheets"}) {
+        for (String provider : new String[] {"pb", "alfa", "spreadsheets", "cs"}) {
             switch (provider) {
                 case "pb":
                     map.put(provider, new SimplePbMatcher(models.stream()
@@ -57,6 +54,12 @@ public class MatcherFatory {
                     break;
                 case "alfa":
                     map.put(provider, new SimpleAlfaMatcher(models.stream()
+                            .filter(m -> provider.equals(m.getProvider()))
+                            .map(m -> tagResolverFromModel(m))
+                            .collect(Collectors.toList())));
+                    break;
+                case "cs":
+                    map.put(provider, new SimpleCsMatcher(models.stream()
                             .filter(m -> provider.equals(m.getProvider()))
                             .map(m -> tagResolverFromModel(m))
                             .collect(Collectors.toList())));
@@ -74,7 +77,7 @@ public class MatcherFatory {
 
     public static Map<String, Matcher<String>> createMatchersMapFromDTO(Collection<TagsMatcherDTO> models) {
         Map<String, Matcher<String>> map = new HashMap<>();
-        for (String provider : new String[] {"pb", "alfa", "spreadsheets"}) {
+        for (String provider : new String[] {"pb", "alfa", "spreadsheets", "cs"}) {
             switch (provider) {
                 case "pb":
                     map.put(provider, new SimplePbMatcher(models.stream()
@@ -84,6 +87,12 @@ public class MatcherFatory {
                     break;
                 case "alfa":
                     map.put(provider, new SimpleAlfaMatcher(models.stream()
+                            .filter(m -> provider.equals(m.getProvider()))
+                            .map(m -> tagResolverFromModel(m))
+                            .collect(Collectors.toList())));
+                    break;
+                case "cs":
+                    map.put(provider, new SimpleCsMatcher(models.stream()
                             .filter(m -> provider.equals(m.getProvider()))
                             .map(m -> tagResolverFromModel(m))
                             .collect(Collectors.toList())));
