@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class MatcherServiceApplication {
 
 	public static void main(String[] args) {
+		System.out.println(System.getProperty("MYSQL_URL"));
 		SpringApplication.run(MatcherServiceApplication.class, args);
 	}
 

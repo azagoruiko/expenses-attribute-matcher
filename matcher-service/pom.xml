@@ -5,12 +5,12 @@
     <parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.1.6.RELEASE</version>
+		<version>2.3.12.RELEASE</version>
 		<relativePath/> 
 	</parent>
 	<groupId>ua.org.zagoruiko.expenses</groupId>
 	<artifactId>matcher-service</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.3-SNAPSHOT</version>
 	<name>matcher-service</name>
 	<description>Expenses</description>
 
@@ -34,7 +34,7 @@
 		<dependency>
 			<groupId>ua.org.zagoruiko.expenses</groupId>
 			<artifactId>expenses-category-match-lib</artifactId>
-			<version>1.0.6-SNAPSHOT</version>
+			<version>1.0.7-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
