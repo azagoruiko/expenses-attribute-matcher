@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 VER=$1
-REPO="10.8.0.5:9999/docker"
+REPO="10.8.0.5:5000"
 #
 #pushd ..
 #mvn clean install
