@@ -35,7 +35,7 @@ EOH
         env = true
       }
       config {
-        image = "127.0.0.1:9999/docker/attribute-matching:0.0.8"
+        image = "10.8.0.5:5000/attribute-matching:0.0.8"
         ports = [ "web" ]
       }
 
