@@ -16,6 +16,11 @@ job "attribute-matcher" {
       delay    = "25s"
       mode     = "delay"
     }
+    network {
+      port "web" {
+        static = 8080
+      }
+    }
 
     task "attribute-matcher-task" {
       driver = "docker"
@@ -31,19 +36,12 @@ EOH
       }
       config {
         image = "127.0.0.1:9999/docker/attribute-matching:0.0.8"
-        
-        port_map {
-          web = 8080
-        }
+        ports = [ "web" ]
       }
 
       resources {
         cpu    = 400
-        memory = 1024
-
-        network {
-          port "web" {}
-        }
+        memory = 512
       }
 
       service {
