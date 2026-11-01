@@ -1,6 +1,5 @@
 package ua.org.zagoruiko.expenses.matcherservice.matcher;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import ua.org.zagoruiko.expenses.category.matcher.*;
 import ua.org.zagoruiko.expenses.category.model.Tag;
 import ua.org.zagoruiko.expenses.category.resolver.ResolverFromString;
@@ -39,7 +38,7 @@ public class MatcherFatory {
                 return new EqualsTagsFromStringResolver(model.getPattern(),
                         tagSetFromTagModel(model));
         }
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException("Unknown matcher function: " + model.getFunc());
     }
 
     public static Map<String, Matcher<String>> createMatchersMap(Collection<TagsMatcherModel> models) {

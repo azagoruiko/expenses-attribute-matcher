@@ -1,19 +1,16 @@
 package ua.org.zagoruiko.expenses.matcherservice;
 
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.junit4.SpringRunner;
 import ua.org.zagoruiko.expenses.category.model.SystemTag;
 import ua.org.zagoruiko.expenses.category.model.Tag;
 
 import java.util.*;
 
-@Ignore
-@RunWith(SpringRunner.class)
+@Disabled
 @SpringBootTest
 public class MatcherModelServiceApplicationTests {
 	@Autowired

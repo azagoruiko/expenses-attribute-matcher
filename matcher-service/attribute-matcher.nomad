@@ -1,5 +1,5 @@
 job "attribute-matcher" {
-  datacenters = ["home"]
+  datacenters = ["dc1"]
   type        = "service"
 
   group "attribute-matcher-group" {
@@ -35,7 +35,7 @@ EOH
         env = true
       }
       config {
-        image = "10.8.0.5:5000/attribute-matching:0.0.8"
+        image = "192.168.1.53:5001/attribute-matching:0.0.2"
         ports = [ "web" ]
       }
 

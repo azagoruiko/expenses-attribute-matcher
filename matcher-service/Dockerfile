@@ -1,4 +1,4 @@
-FROM springci/graalvm-ce:java11-0.12.x
+FROM eclipse-temurin:25-jre
 
 WORKDIR /app
 
